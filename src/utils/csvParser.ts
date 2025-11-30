@@ -1,5 +1,8 @@
 // CSV Parser for LG TV data
-// Expected columns: Product Name, Screen Size, JB Hi-Fi Price, Good Guys Price, Harvey Norman Price, Product URL, Description, All Specs, Dimensions
+// Expected columns:
+// A: Product Name, B: Screen Size, C: JB Hi-Fi Price, D: Good Guys Price, E: Harvey Norman Price,
+// F: Product URL (JB Hi-Fi), G: Description, H: All Specs, I: Dimensions
+// Future columns: J: Good Guys URL, K: Harvey Norman URL
 
 export interface LGProduct {
   id: string;
@@ -14,7 +17,10 @@ export interface LGProduct {
     goodguys: number;
     harveynorman: number;
   };
-  productUrl: string;
+  // Retailer URLs
+  productUrl: string;        // JB Hi-Fi URL (column F)
+  goodGuysUrl: string;       // Future column J
+  harveyNormanUrl: string;   // Future column K
   description: string;
   allSpecs: string;
   dimensions: string;
@@ -69,7 +75,9 @@ export function parseCSV(csvContent: string): LGProduct[] {
   return dataLines.map((line, index) => {
     const columns = parseCSVLine(line);
 
-    // Columns: A=Product Name, B=Screen Size, C=JB Price, D=Good Guys Price, E=Harvey Norman Price, F=Product URL, G=Description, H=All Specs, I=Dimensions
+    // Columns: A=Product Name, B=Screen Size, C=JB Price, D=Good Guys Price, E=Harvey Norman Price,
+    // F=Product URL (JB Hi-Fi), G=Description, H=All Specs, I=Dimensions,
+    // J=Good Guys URL (future), K=Harvey Norman URL (future)
     const [
       productName = '',
       screenSize = '',
@@ -79,7 +87,9 @@ export function parseCSV(csvContent: string): LGProduct[] {
       productUrl = '',
       description = '',
       allSpecs = '',
-      dimensions = ''
+      dimensions = '',
+      goodGuysUrl = '',      // Future column J
+      harveyNormanUrl = ''   // Future column K
     ] = columns;
 
     // Extract screen size for specs summary
@@ -99,7 +109,9 @@ export function parseCSV(csvContent: string): LGProduct[] {
         goodguys: parsePrice(goodGuysPrice),
         harveynorman: parsePrice(harveyNormanPrice),
       },
-      productUrl,
+      productUrl,           // JB Hi-Fi URL
+      goodGuysUrl,          // Future: Good Guys URL
+      harveyNormanUrl,      // Future: Harvey Norman URL
       description,
       allSpecs,
       dimensions,

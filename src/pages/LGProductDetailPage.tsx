@@ -2,12 +2,11 @@ import React, { useEffect, useState } from 'react';
 import { ArrowLeft, Heart, Clock, ChevronUp, ExternalLink } from 'lucide-react';
 import { getLGProductById, loadLGProducts } from '../data/lgProducts';
 import { LGProduct } from '../utils/csvParser';
-import { PriceComparison } from '../components/PriceComparison';
+import { LGPriceComparison } from '../components/LGPriceComparison';
 import { ImageGallery } from '../components/ImageGallery';
 import { SpecSection } from '../components/SpecSection';
 import { Button } from '../components/Button';
-import { formatLastUpdated, formatPrice, getBestPrice } from '../utils/priceUtils';
-import { retailers } from '../data/mockProducts';
+import { formatLastUpdated, formatPrice } from '../utils/priceUtils';
 
 interface LGProductDetailPageProps {
   productId: string;
@@ -57,8 +56,16 @@ export function LGProductDetailPage({ productId, onBack }: LGProductDetailPagePr
   }
 
   const images = product.images || [product.image];
-  const bestPrice = getBestPrice(product.prices);
-  const bestRetailer = retailers.find(r => product.prices[r.id] === bestPrice.price);
+
+  // Get best price and URL
+  const prices = [
+    { price: product.prices.jbhifi, url: product.productUrl, name: 'JB Hi-Fi' },
+    { price: product.prices.goodguys, url: product.goodGuysUrl || 'https://www.thegoodguys.com.au', name: 'The Good Guys' },
+    { price: product.prices.harveynorman, url: product.harveyNormanUrl || 'https://www.harveynorman.com.au', name: 'Harvey Norman' },
+  ].filter(p => p.price > 0).sort((a, b) => a.price - b.price);
+
+  const bestPrice = prices[0]?.price || 0;
+  const bestRetailerUrl = prices[0]?.url || product.productUrl;
 
   // Parse specs string into key-value pairs
   const parseSpecs = (specsStr: string): { key: string; value: string }[] => {
@@ -142,7 +149,7 @@ export function LGProductDetailPage({ productId, onBack }: LGProductDetailPagePr
 
             {/* Price Comparison */}
             <div>
-              <PriceComparison product={product} />
+              <LGPriceComparison product={product} />
             </div>
 
             {/* Product Description */}
@@ -270,15 +277,15 @@ export function LGProductDetailPage({ productId, onBack }: LGProductDetailPagePr
             <p className="text-xs text-gray-500 uppercase tracking-wide mb-1">
               Best Price
             </p>
-            <p className="text-2xl font-bold">{formatPrice(bestPrice.price)}</p>
+            <p className="text-2xl font-bold">{formatPrice(bestPrice)}</p>
           </div>
-          {bestRetailer && (
+          {bestRetailerUrl && (
             <Button
               variant="primary"
-              onClick={() => window.open(bestRetailer.url, '_blank')}
+              onClick={() => window.open(bestRetailerUrl, '_blank')}
               className="flex-shrink-0 min-h-[56px] px-6 text-base font-bold"
             >
-              Get Best Price
+              Buy Now
             </Button>
           )}
         </div>
